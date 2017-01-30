@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: Daniel Menet
+  description: Role for managing filebeat installation and configuration
+  company: SWISS TXT
+  license: BSD
+  min_ansible_version: 2.1
+  galaxy_tags:
+    - logging
+    - elastic
+dependencies: []

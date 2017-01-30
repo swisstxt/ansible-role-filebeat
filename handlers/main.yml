@@ -1,0 +1,5 @@
+---
+- name: ensure state of filebeat
+  service:
+    name: filebeat
+    state: "{{ filebeat_state }}"

@@ -1,0 +1,60 @@
+---
+- name: prepare to turn off service if required
+  include_vars: off.yml
+  when: filebeat_inputs == []
+
+- name: prepare to turn on service if required
+  include_vars: on.yml
+  when: filebeat_inputs != []
+
+- name: install latest filebeat package
+  yum:
+    pkg: "{{ item }}"
+    state: latest
+  with_items:
+  - filebeat
+  when: ansible_os_family == 'RedHat'
+  notify: ensure state of filebeat
+
+- name: enable/disable filebeat services if necessary
+  service:
+    name: "{{ item }}"
+    enabled: "{{ filebeat_enabled }}"
+  with_items:
+  - filebeat
+  when: ansible_os_family == 'RedHat'
+
+- name: create filebeat prospector directory
+  file:
+    path: /etc/filebeat/prospectors.d/
+    state: directory
+
+- name: write filebeat global config
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+  notify: ensure state of filebeat
+
+- name: write filebeat prospectors
+  template:
+    src: prospector.yml.j2
+    dest: /etc/filebeat/prospectors.d/{{ item.document_type }}.yml
+  with_items: "{{ filebeat_inputs }}"
+  notify: ensure state of filebeat
+
+- name: list required prospectors
+  set_fact:
+    required_prospectors: "{{ filebeat_inputs | map(attribute='document_type') | list }}"
+
+- name: list current prospectors
+  shell: ls -1 /etc/filebeat/prospectors.d/ | grep yml | sed -e 's/\..*$//'
+  register: current_prospectors
+  changed_when: false
+
+- name: remove unused prospectors
+  file:
+    path: /etc/filebeat/prospectors.d/{{ item }}.yml
+    state: absent
+  with_items: "{{ current_prospectors.stdout_lines }}"
+  when: item not in required_prospectors
+  notify: ensure state of filebeat
