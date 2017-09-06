@@ -59,6 +59,7 @@
   shell: ls -1 /etc/filebeat/prospectors.d/ | grep yml | sed -e 's/\..*$//'
   register: current_prospectors
   changed_when: false
+  always_run: yes
 
 - name: remove unused prospectors
   file:
