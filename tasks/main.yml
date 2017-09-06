@@ -7,6 +7,15 @@
   include_vars: on.yml
   when: filebeat_inputs != []
 
+- name: add elasticsearch repo
+  yum_repository:
+    name: elastic-5.x
+    description: Elastic repository for 5.x packages
+    baseurl: https://artifacts.elastic.co/packages/5.x/yum
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
 - name: install latest filebeat package
   yum:
     pkg: "{{ item }}"
