@@ -18,19 +18,14 @@
 
 - name: install latest filebeat package
   yum:
-    pkg: "{{ item }}"
-    state: latest
-  with_items:
-  - filebeat
+    pkg: filebeat
   when: ansible_os_family == 'RedHat'
   notify: ensure state of filebeat
 
 - name: enable/disable filebeat services if necessary
   service:
-    name: "{{ item }}"
+    name: filebeat
     enabled: "{{ filebeat_enabled }}"
-  with_items:
-  - filebeat
   when: ansible_os_family == 'RedHat'
 
 - name: create filebeat prospector directory
