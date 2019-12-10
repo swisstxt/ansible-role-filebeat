@@ -58,10 +58,10 @@ filebeat:
       #  review: 1
       {% if item.fields is defined -%}
       fields:
-      {% for key, value in item.fields.items() -%}
-      - {{ key }}: {{ value }}
-      {% endfor %}
-      {% endif %}
+        {% for key, value in item.fields.items() -%}
+        {{ key }}: {{ value }}
+        {% endfor %}
+        {% endif %}
 
       # Set to true to store the additional fields as top level fields instead
       # of under the "fields" sub-dictionary. In case of name conflicts with the
