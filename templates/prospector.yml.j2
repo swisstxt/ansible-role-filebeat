@@ -58,7 +58,7 @@ filebeat:
       #  review: 1
       {% if item.fields is defined -%}
       fields:
-      {% for key, value in item.fields.iteritems() -%}
+      {% for key, value in item.fields.items() -%}
       - {{ key }}: {{ value }}
       {% endfor %}
       {% endif %}
@@ -67,7 +67,9 @@ filebeat:
       # of under the "fields" sub-dictionary. In case of name conflicts with the
       # fields added by Filebeat itself, the custom fields overwrite the default
       # fields.
-      #fields_under_root: false
+      {% if item.fields_under_root is defined -%}
+      fields_under_root: {{ item.fields_under_root }}
+      {% endif %}
 
       # Ignore files which were modified more then the defined timespan in the past.
       # In case all files on your system must be read you can set this value very large.

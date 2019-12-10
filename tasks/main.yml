@@ -42,13 +42,13 @@
 - name: write filebeat prospectors
   template:
     src: prospector.yml.j2
-    dest: /etc/filebeat/prospectors.d/{{ item.document_type }}.yml
+    dest: /etc/filebeat/prospectors.d/{{ item.fields.type }}.yml
   with_items: "{{ filebeat_inputs }}"
   notify: ensure state of filebeat
 
 - name: list required prospectors
   set_fact:
-    required_prospectors: "{{ filebeat_inputs | map(attribute='document_type') | list }}"
+    required_prospectors: "{{ filebeat_inputs | map(attribute='fields.type') | list }}"
 
 - name: list current prospectors
   shell: ls -1 /etc/filebeat/prospectors.d/ | grep yml | sed -e 's/\..*$//'
