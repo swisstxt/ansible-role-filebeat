@@ -9,9 +9,9 @@
 
 - name: add elasticsearch repo
   yum_repository:
-    name: elastic-5.x
-    description: Elastic repository for 5.x packages
-    baseurl: https://artifacts.elastic.co/packages/5.x/yum
+    name: elasticsearch-6.x
+    description: Elastic repository for 6.x packages
+    baseurl: https://artifacts.elastic.co/packages/6.x/yum
     enabled: yes
     gpgcheck: yes
     gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -28,9 +28,9 @@
     enabled: "{{ filebeat_enabled }}"
   when: ansible_os_family == 'RedHat'
 
-- name: create filebeat prospector directory
+- name: create filebeat inputs directory
   file:
-    path: /etc/filebeat/prospectors.d/
+    path: /etc/filebeat/inputs/
     state: directory
 
 - name: write filebeat global config
@@ -39,27 +39,27 @@
     dest: /etc/filebeat/filebeat.yml
   notify: ensure state of filebeat
 
-- name: write filebeat prospectors
+- name: write filebeat inputs
   template:
-    src: prospector.yml.j2
-    dest: /etc/filebeat/prospectors.d/{{ item.fields.type }}.yml
+    src: inputs.yml.j2
+    dest: /etc/filebeat/inputs/{{ item.fields.type }}.yml
   with_items: "{{ filebeat_inputs }}"
   notify: ensure state of filebeat
 
-- name: list required prospectors
+- name: list required inputs
   set_fact:
-    required_prospectors: "{{ filebeat_inputs | map(attribute='fields.type') | list }}"
+    required_inputs: "{{ filebeat_inputs | map(attribute='fields.type') | list }}"
 
-- name: list current prospectors
-  shell: ls -1 /etc/filebeat/prospectors.d/ | grep yml | sed -e 's/\..*$//'
-  register: current_prospectors
+- name: list current inputs
+  shell: ls -1 /etc/filebeat/inputs/ | grep yml | sed -e 's/\..*$//'
+  register: current_inputs
   changed_when: false
   check_mode: no
 
-- name: remove unused prospectors
+- name: remove unused inputs
   file:
-    path: /etc/filebeat/prospectors.d/{{ item }}.yml
+    path: /etc/filebeat/inputs/{{ item }}.yml
     state: absent
-  with_items: "{{ current_prospectors.stdout_lines }}"
-  when: item not in required_prospectors
+  with_items: "{{ current_inputs.stdout_lines }}"
+  when: item not in required_inputs
   notify: ensure state of filebeat

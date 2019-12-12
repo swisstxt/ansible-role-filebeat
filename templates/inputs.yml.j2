@@ -1,0 +1,57 @@
+filebeat:
+  inputs:
+    - type: {{ item.type | default("log") }}
+      paths:
+        {% for path in item.paths -%}
+        - {{ path }}
+        {% endfor %}
+
+      {% if item.exclude_lines is defined -%}
+      exclude_lines:
+      {% for exclude in item.exclude_lines -%}
+      - {{ exclude }}
+      {% endfor %}
+      {% endif %}
+
+      # Include lines. A list of regular expressions to match. It exports the lines that are
+      # matching any regular expression from the list. The include_lines is called before
+      # exclude_lines. By default, all the lines are exported.
+      # include_lines: ["^ERR", "^WARN"]
+      {% if item.include_lines is defined -%}
+      include_lines:
+        {% for include in item.include_lines -%}
+        - {{ include }}
+        {% endfor %}
+        {% endif %}
+
+      # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+      # are matching any regular expression from the list. By default, no files are dropped.
+      # exclude_files: [".gz$"]
+        {% if item.exclude_files is defined -%}
+        exclude_files:
+        {% for exfile in item.exclude_files -%}
+        - {{ exfile }}
+        {% endfor %}
+        {% endif %}
+
+      # Set to true to store the additional fields as top level fields instead
+      # of under the "fields" sub-dictionary. In case of name conflicts with the
+      # fields added by Filebeat itself, the custom fields overwrite the default
+      # fields.
+      ###### WARNING: At least the field "type" must be defined because our logstash filters
+      ###### are using this field
+      fields:
+        type: {{ item.fields.type }}
+        {% for key, value in item.fields.items() if not key == "type" -%}
+        {{ key }}: {{ value }}
+        {% endfor %}
+
+      {% if item.fields_under_root is defined -%}
+      fields_under_root: {{ item.fields_under_root }}
+      {% endif %}
+
+      # Setting tail_files to true means filebeat starts readding new files at the end
+      # instead of the beginning. If this is used in combination with log rotation
+      # this can mean that the first entries of a new file are skipped.
+      tail_files: {{ item.tail_files|default('false') }}
+
