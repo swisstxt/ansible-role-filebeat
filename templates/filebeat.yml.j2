@@ -9,7 +9,7 @@ output.logstash:
 logging.to_files: {{ filebeat_log_enabled | default(true) }}
 logging.files:
   path: {{ filebeat_log_path | default("/var/log/filebeat") }}
-  rotateeverybytes: {{ filbeat_logfile_size | default(10485760) }}
+  rotateeverybytes: {{ filebeat_logfile_size | default(10485760) }}
 logging.level: {{ filebeat_loglevel | default("info") }}
 
 xpack.monitoring.enabled: {{ filebeat_monitoring | default(true) }}
