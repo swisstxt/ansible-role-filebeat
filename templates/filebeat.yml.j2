@@ -15,3 +15,7 @@ logging.level: {{ filebeat_loglevel | default("info") }}
 xpack.monitoring.enabled: {{ filebeat_monitoring | default(true) }}
 xpack.monitoring.elasticsearch:
   hosts: ["{{ elasticsearch_lb_url }}"]
+
+{% if filebeat_custom_config is defined and filebeat_custom_config != '' %}
+{{ filebeat_custom_config }}
+{% endif %}
